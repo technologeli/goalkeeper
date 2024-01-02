@@ -11,6 +11,10 @@ db = libsql_client.create_client_sync(
 )
 
 
+def close():
+    db.close()
+
+
 def create_goal(id: int, goal: str) -> bool:
     dt = datetime.datetime.now()
     res = db.execute("""
@@ -41,5 +45,15 @@ def list_goals(id: int):
     return res.rows, res.columns
 
 
-def close():
-    db.close()
+def do_goal(id: int, goal_num: int) -> bool:
+    # get goal_id from userid and goal_num
+    goals = db.execute("select id from goals where user_id = ? order by created_at", [str(id)])
+    if goal_num < 1 or goal_num > len(goals.rows):
+        return False
+
+    res = db.execute("""
+        insert into completions (id, completed_at, goal_id) values (?, ?, ?)
+    """,[str(uuid4()), datetime.datetime.now(), goals.rows[goal_num - 1][0]]
+    )
+
+    return res.rows_affected == 1

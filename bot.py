@@ -77,6 +77,15 @@ async def ginfo(ctx: Context, goal_num: discord.SlashCommandOptionType.integer):
     await ctx.respond("", embed=embed)
 
 
+@goals.command(name="do", description="Add to a streak!")
+async def gdo(ctx: Context, goal_num: discord.SlashCommandOptionType.integer): # type: ignore
+    success = db.do_goal(ctx.user.id, goal_num)
+    if success:
+        await ctx.respond("Success!")
+    else:
+        await ctx.respond("Something wrong")
+
+
 bot.run(os.getenv("DISCORD_TOKEN")) # run the bot with the token
 db.close()
 
